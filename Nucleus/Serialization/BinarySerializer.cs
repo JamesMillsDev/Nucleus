@@ -79,11 +79,10 @@ namespace Nucleus.Serialization
             }
 
             // Find all implemented operators
-            IEnumerable<MethodInfo> methods = toDeserialize.GetType().
-                GetMethods(BindingFlags.Static | BindingFlags.Public).
-                Where(method => method.Name.Contains("op_"));
+            IEnumerable<MethodInfo> methods = toDeserialize.GetType()
+                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance).Where(method => method.Name.ToLower().Contains("equal"));
             IEnumerable<MethodInfo> methodInfos = methods.ToList();
-            
+
             // Make sure any were found
             if (!methodInfos.Any())
             {
@@ -91,10 +90,11 @@ namespace Nucleus.Serialization
             }
 
             // Verify that the equality and inequality operators have been implemented.
-            if (methodInfos.First(method => method.Name.Equals("op_Equality")) == null ||
-                methodInfos.First(method => method.Name.Equals("op_Inequality")) == null)
+            if (methodInfos.FirstOrDefault(method => method.Name.Equals("op_Equality")) == null ||
+                methodInfos.FirstOrDefault(method => method.Name.Equals("op_Inequality")) == null || 
+                methodInfos.FirstOrDefault(method => method.Name.Equals("Equals")) == null)
             {
-                throw new NotSupportedException("Both Equality (==) and Inequality (!=) operators are required.");
+                throw new NotSupportedException("Both Equality (==) and Inequality (!=) operators as well as Equals override are required.");
             }
 
             // Iterate over the fields of the passed value
@@ -114,9 +114,9 @@ namespace Nucleus.Serialization
                     if (field.FieldType.IsValueType)
                     {
                         object boxed = toDeserialize;
-                        
+
                         field.SetValue(boxed, value);
-                        
+
                         toDeserialize = (T)boxed;
                     }
                     else
@@ -149,6 +149,7 @@ namespace Nucleus.Serialization
                 else
                 {
                     Deserialize(ref value, ref reader);
+                    field.SetValue(toDeserialize, value);
                 }
             }
         }
@@ -163,6 +164,25 @@ namespace Nucleus.Serialization
             if (toSerialize == null)
             {
                 return;
+            }
+
+            // Find all implemented operators
+            IEnumerable<MethodInfo> methods = toSerialize.GetType()
+                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance).Where(method => method.Name.ToLower().Contains("equal"));
+            IEnumerable<MethodInfo> methodInfos = methods.ToList();
+
+            // Make sure any were found
+            if (!methodInfos.Any())
+            {
+                return;
+            }
+
+            // Verify that the equality and inequality operators have been implemented.
+            if (methodInfos.FirstOrDefault(method => method.Name.Equals("op_Equality")) == null ||
+                methodInfos.FirstOrDefault(method => method.Name.Equals("op_Inequality")) == null || 
+                methodInfos.FirstOrDefault(method => method.Name.Equals("Equals")) == null)
+            {
+                throw new NotSupportedException("Both Equality (==) and Inequality (!=) operators as well as Equals override are required.");
             }
 
             // Iterate over the fields of the passed value
@@ -202,12 +222,6 @@ namespace Nucleus.Serialization
                     // Recursively get the values as this is not a raw value if it is marked as serializable
                     Serialize(value, ref writer, maxBinaryDataLength);
                 }
-            }
-
-            // TODO: Handle inheritance here
-            if (toSerialize.GetType().BaseType != null)
-            {
-                Serialize(toSerialize, ref writer, maxBinaryDataLength);
             }
         }
 

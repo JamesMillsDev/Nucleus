@@ -47,9 +47,9 @@ namespace Nucleus.Tests.Serialization
             {
                 BinarySerializer.Serialize(testVector, paths["single-layer"]);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Assert.Fail();
+                Assert.Fail(e.Message);
                 return;
             }
 
@@ -82,9 +82,9 @@ namespace Nucleus.Tests.Serialization
             {
                 BinarySerializer.Serialize(statWrapper, paths["list"]);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Assert.Fail();
+                Assert.Fail(e.Message);
                 return;
             }
 
