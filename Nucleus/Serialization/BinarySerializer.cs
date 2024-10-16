@@ -203,6 +203,12 @@ namespace Nucleus.Serialization
                     Serialize(value, ref writer, maxBinaryDataLength);
                 }
             }
+
+            // TODO: Handle inheritance here
+            if (toSerialize.GetType().BaseType != null)
+            {
+                Serialize(toSerialize, ref writer, maxBinaryDataLength);
+            }
         }
 
         /// <summary>Get all fields from the passed object.</summary>

@@ -1,6 +1,7 @@
 ﻿using Nucleus.Serialization;
 using Nucleus.Tests.Common;
 using Nucleus.Tests.Common.SampleData;
+using Exception = System.Exception;
 
 namespace Nucleus.Tests.Serialization
 {
@@ -11,6 +12,7 @@ namespace Nucleus.Tests.Serialization
         {
             { "single-layer", "serialize-single-layer.dat" },
             { "list", "serialize-list.dat" },
+            { "inheritance", "serialize-inheritance.dat" }
         };
 
         private PlayerActor? playerActor;
@@ -71,7 +73,7 @@ namespace Nucleus.Tests.Serialization
             Assert.That(testVector, Is.EqualTo(new Vector3(77, 85, 1)));
         }
 
-        [Test, Order(3)]
+        [Test, Order(3), Description("Tests the deserialization of lists. A wrapper class needs to be used as top-level lists are not supported.")]
         public void SerializeList()
         {
             ListWrapper<Stat> statWrapper = new(stats);
@@ -89,7 +91,7 @@ namespace Nucleus.Tests.Serialization
             Assert.Pass();
         }
 
-        [Test, Order(4), Description("Tests the serialization of lists. A wrapper class needs to be used as top-level lists are not supported.")]
+        [Test, Order(4), Description("Tests the deserialization of lists. A wrapper class needs to be used as top-level lists are not supported.")]
         public void DeserializeList()
         {
             ListWrapper<Stat>? statWrapper = new();
@@ -105,6 +107,40 @@ namespace Nucleus.Tests.Serialization
             }
 
             Assert.That(statWrapper, Is.EqualTo(new ListWrapper<Stat>(stats)));
+        }
+
+        [Test, Order(5)]
+        public void SerializeInheritanceObject()
+        {
+            try
+            {
+                BinarySerializer.Serialize(playerActor, paths["inheritance"]);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.Message);
+                throw;
+            }
+            
+            Assert.Pass();
+        }
+
+        [Test, Order(6)]
+        public void DeserializeInheritanceObject()
+        {
+            PlayerActor? actor = new();
+            
+            try
+            {
+                BinarySerializer.Deserialize(ref actor, paths["inheritance"]);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail(e.Message);
+                throw;
+            }
+            
+            Assert.That(actor, Is.EqualTo(playerActor));
         }
 
         [TearDown]
