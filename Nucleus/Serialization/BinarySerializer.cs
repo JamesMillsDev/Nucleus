@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace Nucleus.Serialization
 {
     /// <summary>A utility class to serialize and deserialize objects and their hierarchy to binary.</summary>
-    public class BinarySerializer
+    public static class BinarySerializer
     {
         /// <summary>Converts a variable to binary and writes it to a file.</summary>
         /// <param name="toSerialize">The variable we are serializing to the file.</param>
@@ -76,6 +76,25 @@ namespace Nucleus.Serialization
             if (toDeserialize == null)
             {
                 return;
+            }
+
+            // Find all implemented operators
+            IEnumerable<MethodInfo> methods = toDeserialize.GetType().
+                GetMethods(BindingFlags.Static | BindingFlags.Public).
+                Where(method => method.Name.Contains("op_"));
+            IEnumerable<MethodInfo> methodInfos = methods.ToList();
+            
+            // Make sure any were found
+            if (!methodInfos.Any())
+            {
+                return;
+            }
+
+            // Verify that the equality and inequality operators have been implemented.
+            if (methodInfos.First(method => method.Name.Equals("op_Equality")) == null ||
+                methodInfos.First(method => method.Name.Equals("op_Inequality")) == null)
+            {
+                throw new NotSupportedException("Both Equality (==) and Inequality (!=) operators are required.");
             }
 
             // Iterate over the fields of the passed value
