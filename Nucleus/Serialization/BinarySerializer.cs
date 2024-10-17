@@ -78,25 +78,6 @@ namespace Nucleus.Serialization
                 return;
             }
 
-            // Find all implemented operators
-            IEnumerable<MethodInfo> methods = toDeserialize.GetType()
-                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance).Where(method => method.Name.ToLower().Contains("equal"));
-            IEnumerable<MethodInfo> methodInfos = methods.ToList();
-
-            // Make sure any were found
-            if (!methodInfos.Any())
-            {
-                return;
-            }
-
-            // Verify that the equality and inequality operators have been implemented.
-            if (methodInfos.FirstOrDefault(method => method.Name.Equals("op_Equality")) == null ||
-                methodInfos.FirstOrDefault(method => method.Name.Equals("op_Inequality")) == null || 
-                methodInfos.FirstOrDefault(method => method.Name.Equals("Equals")) == null)
-            {
-                throw new NotSupportedException("Both Equality (==) and Inequality (!=) operators as well as Equals override are required.");
-            }
-
             // Iterate over the fields of the passed value
             foreach (FieldInfo field in GetFields(toDeserialize))
             {
@@ -164,25 +145,6 @@ namespace Nucleus.Serialization
             if (toSerialize == null)
             {
                 return;
-            }
-
-            // Find all implemented operators
-            IEnumerable<MethodInfo> methods = toSerialize.GetType()
-                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance).Where(method => method.Name.ToLower().Contains("equal"));
-            IEnumerable<MethodInfo> methodInfos = methods.ToList();
-
-            // Make sure any were found
-            if (!methodInfos.Any())
-            {
-                return;
-            }
-
-            // Verify that the equality and inequality operators have been implemented.
-            if (methodInfos.FirstOrDefault(method => method.Name.Equals("op_Equality")) == null ||
-                methodInfos.FirstOrDefault(method => method.Name.Equals("op_Inequality")) == null || 
-                methodInfos.FirstOrDefault(method => method.Name.Equals("Equals")) == null)
-            {
-                throw new NotSupportedException("Both Equality (==) and Inequality (!=) operators as well as Equals override are required.");
             }
 
             // Iterate over the fields of the passed value

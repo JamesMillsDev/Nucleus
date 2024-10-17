@@ -10,8 +10,24 @@ namespace Nucleus.Tests.Common
         public ListWrapper() : this([])
         {
         }
+        
+        public override string ToString()
+        {
+            if (wrapped == null)
+            {
+                return "null";
+            }
 
-        protected bool Equals(ListWrapper<T> other)
+            StringBuilder builder = new();
+
+            builder.Append('[');
+            builder.AppendJoin(',', wrapped);
+            builder.Append(']');
+
+            return builder.ToString();
+        }
+
+        /*protected bool Equals(ListWrapper<T> other)
         {
             if (wrapped == null || other.wrapped == null)
             {
@@ -49,22 +65,6 @@ namespace Nucleus.Tests.Common
             return obj.GetType() == GetType() && Equals((ListWrapper<T>)obj);
         }
 
-        public override string ToString()
-        {
-            if (wrapped == null)
-            {
-                return "null";
-            }
-
-            StringBuilder builder = new();
-
-            builder.Append('[');
-            builder.AppendJoin(',', wrapped);
-            builder.Append(']');
-
-            return builder.ToString();
-        }
-
         public override int GetHashCode() => wrapped == null ? 0 : wrapped.GetHashCode();
 
         public static bool operator ==(ListWrapper<T> left, ListWrapper<T> right)
@@ -80,6 +80,6 @@ namespace Nucleus.Tests.Common
         public static bool operator !=(ListWrapper<T> left, ListWrapper<T> right)
         {
             return !(left == right);
-        }
+        }*/
     }
 }

@@ -70,7 +70,18 @@ namespace Nucleus.Tests.Serialization
                 Assert.Fail(e.Message);
             }
 
-            Assert.That(testVector, Is.EqualTo(new Vector3(77, 85, 1)));
+            Assert.That(() =>
+            {
+                if (!testVector.HasValue)
+                {
+                    return false;
+                }
+                
+                Vector3 expected = new(77, 85, 1);
+                Vector3 actual = testVector.Value;
+                
+                return Comparisons.Compare(expected, actual);
+            });
         }
 
         [Test, Order(3), Description("Tests the deserialization of lists. A wrapper class needs to be used as top-level lists are not supported.")]
@@ -106,7 +117,23 @@ namespace Nucleus.Tests.Serialization
                 return;
             }
 
-            Assert.That(statWrapper, Is.EqualTo(new ListWrapper<Stat>(stats)));
+            Assert.That(() =>
+            {
+                if (statWrapper == null)
+                {
+                    return false;
+                }
+                
+                ListWrapper<Stat> expected = new(stats);
+                ListWrapper<Stat> actual = statWrapper;
+
+                if (expected.wrapped == null || actual.wrapped == null)
+                {
+                    return false;
+                }
+
+                return Comparisons.Compare(expected.wrapped, actual.wrapped, CompareStats);
+            });
         }
 
         [Test, Order(5)]
@@ -140,7 +167,22 @@ namespace Nucleus.Tests.Serialization
                 throw;
             }
             
-            Assert.That(actor, Is.EqualTo(playerActor));
+            Assert.That(() =>
+            {
+                if (actor == null || playerActor == null)
+                {
+                    return false;
+                }
+                
+                PlayerActor expected = playerActor;
+                PlayerActor actual = actor;
+                
+                return Comparisons.Compare(expected.stats, actual.stats, CompareStats) && 
+                       expected.tag.Equals(actual.tag) && 
+                       Comparisons.Compare(expected.position, actual.position) &&
+                       Comparisons.Compare(expected.rotation, actual.rotation) &&
+                       Comparisons.Compare(expected.scale, actual.scale);
+            });
         }
 
         [TearDown]
@@ -148,5 +190,8 @@ namespace Nucleus.Tests.Serialization
         {
             stats.Clear();
         }
+
+        private bool CompareStats(Stat lhs, Stat rhs) => Comparisons.Compare(lhs.value, rhs.value) &&
+                                                         lhs.title.Equals(rhs.title);
     }
 }
