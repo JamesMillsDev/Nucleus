@@ -132,7 +132,7 @@ namespace Nucleus.Tests.Serialization
                     return false;
                 }
 
-                return Comparisons.Compare(expected.wrapped, actual.wrapped, CompareStats);
+                return Comparisons.Compare(expected.wrapped, actual.wrapped, Comparisons.Compare);
             });
         }
 
@@ -177,11 +177,7 @@ namespace Nucleus.Tests.Serialization
                 PlayerActor expected = playerActor;
                 PlayerActor actual = actor;
                 
-                return Comparisons.Compare(expected.stats, actual.stats, CompareStats) && 
-                       expected.tag.Equals(actual.tag) && 
-                       Comparisons.Compare(expected.position, actual.position) &&
-                       Comparisons.Compare(expected.rotation, actual.rotation) &&
-                       Comparisons.Compare(expected.scale, actual.scale);
+                return Comparisons.Compare(expected, actual);
             });
         }
 
@@ -190,8 +186,5 @@ namespace Nucleus.Tests.Serialization
         {
             stats.Clear();
         }
-
-        private bool CompareStats(Stat lhs, Stat rhs) => Comparisons.Compare(lhs.value, rhs.value) &&
-                                                         lhs.title.Equals(rhs.title);
     }
 }

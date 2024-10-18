@@ -25,5 +25,24 @@ namespace Nucleus.Tests.Common
 
             return !lhs.Where((t, i) => !comparer(t, rhs[i])).Any();
         }
+
+        public static bool Compare(Stat lhs, Stat rhs)
+        {
+            return Compare(lhs.value, rhs.value) && lhs.title.Equals(rhs.title);
+        }
+
+        public static bool Compare(Actor lhs, Actor rhs)
+        {
+            return Compare(lhs.position, rhs.position) &&
+                   Compare(lhs.rotation, rhs.rotation) &&
+                   Compare(lhs.scale, rhs.scale);
+        }
+
+        public static bool Compare(PlayerActor lhs, PlayerActor rhs)
+        {
+            return Compare(lhs as Actor, rhs) &&
+                   Compare(lhs.stats, rhs.stats, Compare) &&
+                   lhs.tag.Equals(rhs.tag);
+        }
     }
 }

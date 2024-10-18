@@ -1,6 +1,8 @@
-﻿namespace Nucleus.Tests.Common.SampleData
+﻿using Nucleus.Patterns;
+
+namespace Nucleus.Tests.Common.SampleData
 {
-    public class PlayerActor : Actor
+    public class PlayerActor : Actor, IPrototype<PlayerActor>
     {
         public List<Stat> stats = [];
         public string tag;
@@ -14,6 +16,22 @@
             : base(actorPosition, actorRotation, actorScale)
         {
             this.tag = tag;
+        }
+
+        public PlayerActor Clone()
+        {
+            PlayerActor actor = new()
+            {
+                position = position,
+                rotation = rotation,
+                scale = scale,
+                velocity = velocity,
+                angularVelocity = angularVelocity,
+                tag = tag,
+                stats = stats
+            };
+
+            return actor;
         }
 
         public override string ToString()
