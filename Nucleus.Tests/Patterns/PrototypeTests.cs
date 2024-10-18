@@ -62,6 +62,17 @@ namespace Nucleus.Tests.Patterns
             });
         }
 
+        [Test, Order(3)]
+        public void ChangeCloneActor()
+        {
+            PlayerActor? clone = playerActor?.Clone();
+            Assert.That(clone, Is.Not.Null);
+            
+            clone.position = new Vector3(0, 10, 0);
+            
+            Assert.That(() => playerActor != null && !Comparisons.Compare(playerActor, clone));
+        }
+
         [TearDown]
         public void Cleanup()
         {
